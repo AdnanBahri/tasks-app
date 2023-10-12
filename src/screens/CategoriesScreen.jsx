@@ -32,6 +32,7 @@ const CategoriesScreen = ({ route: { params }, navigation }) => {
   console.log("Categories", categories);
   const [isOpen, setIsOpen] = useState(false);
   const [category, setCategory] = useState("");
+  const [isGrid, setIsGrid] = useState(true);
   const dispatch = useDispatch();
 
   const addTaskHandler = () => {
@@ -58,6 +59,10 @@ const CategoriesScreen = ({ route: { params }, navigation }) => {
     dispatch(removeCategory(category));
   };
 
+  const handleDisplay = () => {
+    setIsGrid((prev) => !prev);
+  };
+
   return (
     <PaperProvider>
       <SafeAreaView className={`flex-1 ${Platform.OS === "android" && "pt-5"}`}>
@@ -71,29 +76,46 @@ const CategoriesScreen = ({ route: { params }, navigation }) => {
                 className="text-slate-900"
               />
             </TouchableOpacity>
-            <Text h4>Create Task</Text>
-            <TouchableOpacity onPress={() => setIsOpen(true)}>
-              <Ionicons name="ios-add" size={28} className="text-slate-900" />
-            </TouchableOpacity>
+            <Text h4>Categories</Text>
+            <View className="flex-row items-center space-x-4">
+              <Button onPress={handleDisplay} padding={4}>
+                {isGrid ? (
+                  <Ionicons
+                    name="ios-grid"
+                    size={18}
+                    className="text-slate-900"
+                  />
+                ) : (
+                  <Ionicons
+                    name="ios-menu"
+                    size={18}
+                    className="text-slate-900"
+                  />
+                )}
+              </Button>
+              <Button onPress={() => setIsOpen(true)}>
+                <Ionicons name="ios-add" size={28} className="text-slate-900" />
+              </Button>
+            </View>
           </View>
           {/* Show a Message When there is No Category yet */}
           {categories.length === 0 && (
             <View className="flex-1 flex-row items-center justify-center gap-x-1">
-              <Text>Nothing yet.</Text>
-              <Button
-                paddingVertical={4}
-                paddingHorizontal={10}
-                radius={4}
-                color={"#438e96"}
-                onPress={() => setIsOpen(true)}
-              >
-                <Text color={"#fff"}>Create</Text>
+              <Text p weight={"600"}>
+                Nothing yet.
+              </Text>
+              <Button onPress={() => setIsOpen(true)}>
+                <Text p weight={"600"} className="text-sky-500">
+                  Create
+                </Text>
               </Button>
-              <Text>a new Category</Text>
+              <Text p weight={"600"}>
+                a new Category.
+              </Text>
             </View>
           )}
           {/* Show The saved List of Categories */}
-          {categories.length > 0 && (
+          {categories.length > 0 && isGrid && (
             <ScrollView>
               <View
                 style={{
@@ -135,6 +157,33 @@ const CategoriesScreen = ({ route: { params }, navigation }) => {
               </View>
             </ScrollView>
           )}
+          {categories.length > 0 && !isGrid && (
+            <FlatList
+              contentContainerStyle={{
+                flex: 1,
+                padding: 10,
+              }}
+              data={categories}
+              keyExtractor={(item, index) => item}
+              renderItem={({ item, index }) => (
+                <Button
+                  onPress={() =>
+                    navigation.navigate("TaskScreen", { path: item })
+                  }
+                >
+                  <View className="flex-row items-center justify-between rounded-md bg-slate-900 p-3 mb-4">
+                    <Text h4 color={"#fff"}>
+                      {item}
+                    </Text>
+                    <Button onPress={() => deleteCategory(item)}>
+                      <Ionicons name="trash" size={16} color="white" />
+                    </Button>
+                  </View>
+                </Button>
+              )}
+            />
+          )}
+          {/* Dialog Modal To Create New Category */}
           <DialogModal visible={isOpen} hide={() => setIsOpen(false)}>
             <View
               style={{
@@ -189,116 +238,5 @@ const CategoriesScreen = ({ route: { params }, navigation }) => {
       </SafeAreaView>
     </PaperProvider>
   );
-  // const { action, task } = params;
-  // console.log(action);
-  // const [isOpen, setIsOpen] = useState(false);
-  // const [title, setTitle] = useState(action !== "create" ? task.title : "");
-  // const [desc, setDesc] = useState(action !== "create" ? task.desc : "");
-  // const [dueDate, setDueDate] = useState(null);
-  // const [priority, setPriority] = useState();
-  // const [isCompleted, setIsCompleted] = useState(false);
-
-  // const showDatePicker = () => {
-  //   setIsOpen(true);
-  // };
-
-  // const hideDatePicker = () => {
-  //   setIsOpen(false);
-  // };
-
-  // const handleDateChange = (event, selectedDate) => {
-  //   hideDatePicker();
-  //   if (selectedDate) {
-  //     setDueDate(selectedDate);
-  //     console.log(selectedDate.getDate());
-  //   }
-  // };
-
-  // const toggleSwitch = () => {
-  //   setIsCompleted((prev) => !prev);
-  // };
-
-  // return (
-  //   <View className="flex-1 p-4 space-y-2">
-  //     <Text className="text-lg font-medium text-slate-700">
-  //       {action === "create" ? "Create New Task" : `Update ${task.title}`}
-  //     </Text>
-  //     <Text className="text-lg font-medium">Title</Text>
-  //     <TextInput
-  //       className="text-base font-medium bg-gray-300 rounded p-2"
-  //       value={title}
-  //       placeholder="Task Header"
-  //       onChangeText={(text) => setTitle(text)}
-  //     />
-  //     <Text className="text-lg font-medium">Description</Text>
-  //     <TextInput
-  //       className="text-base font-medium rounded bg-gray-300 text-slate-700 p-2"
-  //       placeholder="Write Something..."
-  //       value={desc}
-  //       multiline={true}
-  //       numberOfLines={5}
-  //       onChangeText={(text) => setDesc(text)}
-  //       style={{ textAlignVertical: "top" }}
-  //     />
-  //     <View className="flex-row space-x-2">
-  //       <View className="flex-1">
-  //         <Text className="text-lg font-medium">Due Date</Text>
-  //         <TouchableOpacity
-  //           className="rounded bg-gray-400 px-2 py-[15px]"
-  //           onPress={showDatePicker}
-  //         >
-  //           <Text className="text-base">
-  //             {!dueDate
-  //               ? "dd-mm-yyyy"
-  //               : `${dueDate.getDate() < 10 && "0"}${dueDate.getDate()} - ${
-  //                   dueDate.getMonth() < 9 && "0"
-  //                 }${dueDate.getMonth() + 1} - ${dueDate.getFullYear()}`}
-  //           </Text>
-  //         </TouchableOpacity>
-  //       </View>
-  //       <View className="flex-1">
-  //         <Text className="text-lg font-medium">Priority</Text>
-  //         <View className="rounded bg-gray-400">
-  //           <Picker
-  //             selectedValue={priority}
-  //             onValueChange={(itemValue, itemIndex) => setPriority(itemValue)}
-  //           >
-  //             <Picker.Item label="High" value="2" />
-  //             <Picker.Item label="Medium" value="1" />
-  //             <Picker.Item label="Low" value="0" />
-  //           </Picker>
-  //         </View>
-
-  //         {/* <TouchableOpacity className="rounded bg-gray-400 px-2 py-3">
-  //             <Text className="text-base">dd-mm-yyyy</Text>
-  //           </TouchableOpacity> */}
-  //       </View>
-  //     </View>
-  //     <View className="flex-row space-x-2">
-  //       <View className="flex-1">
-  //         <Text className="text-lg font-medium">Completed</Text>
-  //         <View className="px-2 py-[15px]">
-  //           <ToggleSwitch open={isCompleted} swicth={toggleSwitch} />
-  //         </View>
-  //       </View>
-  //       <View className="flex-1">
-  //         <Text className="text-lg font-medium">Create Date</Text>
-  //         <View className="rounded bg-gray-400 px-2 py-[15px]">
-  //           <Text className="text-base">dd-mm-yyyy</Text>
-  //         </View>
-  //       </View>
-  //     </View>
-  //     {isOpen && (
-  //       <DateTimePicker
-  //         testID="dateTimePicker"
-  //         value={dueDate || new Date()}
-  //         mode="date" // You can also use "time" or "datetime"
-  //         is24Hour={true}
-  //         display="spinner"
-  //         onChange={handleDateChange}
-  //       />
-  //     )}
-  //   </View>
-  // );
 };
 export default CategoriesScreen;

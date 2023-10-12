@@ -17,20 +17,30 @@ import SelectDropdown from "../components/dropdown";
 import { PaperProvider, SegmentedButtons } from "react-native-paper";
 import DialogModal from "../components/modal";
 import { useDispatch } from "react-redux";
-import { addCategory, addTask } from "../redux/slices/taskSlice";
+import { addCategory, addTask, updateTask } from "../redux/slices/taskSlice";
 
 const SCREEN_WIDTH = Dimensions.get("window").width;
 
-const CreateTaskScreen = ({ navigation }) => {
+const TaskDetailsScreen = ({ route: { params }, navigation }) => {
+  const {
+    title,
+    category_name,
+    desc,
+    created_at,
+    due_date,
+    priority,
+    completed,
+  } = JSON.parse(params.task);
+
   const [isOpen, setIsOpen] = useState(false);
   const [pickerIsOpen, setPickerIsOpen] = useState(false);
-  const [category, setCategory] = useState(""); // handler Creating New Category
-  const [name, setName] = useState("");
-  const [desc, setdesc] = useState("");
-  const [selectedPriority, setSelectedPriority] = useState("High");
-  const [selectedCategory, setSelectedCategory] = useState("");
-  const [isCompleted, setIsCompleted] = useState(false);
-  const [selectedDate, setSelectedDate] = useState("");
+  const [category, setCategory] = useState(""); // Handle Creating New Category
+  const [name, setName] = useState(title);
+  const [description, setDescription] = useState(desc);
+  const [selectedPriority, setSelectedPriority] = useState(priority);
+  const [selectedCategory, setSelectedCategory] = useState(category_name);
+  const [isCompleted, setIsCompleted] = useState(completed);
+  const [selectedDate, setSelectedDate] = useState(new Date(due_date));
   const dispatch = useDispatch();
 
   const closeModal = () => {
@@ -62,31 +72,29 @@ const CreateTaskScreen = ({ navigation }) => {
     setIsCompleted((prev) => !prev);
   };
 
-  const createTask = () => {
+  const submit = () => {
+    const oldTask = {
+      title,
+      category_name,
+      desc,
+      created_at: new Date(created_at),
+      due_date,
+      priority,
+      completed,
+    };
     const newTask = {
       category_name: selectedCategory,
       title: name,
-      desc,
+      desc: description,
       priority: selectedPriority,
       due_date: selectedDate,
-      created_at: new Date(),
+      created_at: new Date(created_at),
       completed: isCompleted,
     };
-    dispatch(addTask(newTask));
-    clearUI();
+    dispatch(updateTask({ oldTask, newTask }));
+    navigation.goBack();
   };
 
-  const clearUI = () => {
-    setIsOpen(false);
-    setPickerIsOpen(false);
-    setCategory("");
-    setName("");
-    setdesc("");
-    setSelectedPriority("High");
-    setSelectedCategory("");
-    setIsCompleted(false);
-    setSelectedDate("");
-  };
   return (
     <PaperProvider>
       <SafeAreaView className={`flex-1 ${Platform.OS === "android" && "pt-5"}`}>
@@ -100,7 +108,7 @@ const CreateTaskScreen = ({ navigation }) => {
                 className="text-slate-900"
               />
             </TouchableOpacity>
-            <Text h4>Create Task</Text>
+            <Text h4>Update Your Task</Text>
             <TouchableOpacity disabled className="opacity-0">
               <Ionicons
                 name="ellipsis-vertical"
@@ -126,12 +134,12 @@ const CreateTaskScreen = ({ navigation }) => {
               </Text>
               <TextInput
                 className={`text-base text-slate-900 font-medium border-[1px] border-slate-900 rounded p-2 w-full bg-white mt-2`}
-                value={desc}
+                value={description}
                 placeholder="Enter Task Name"
                 numberOfLines={5}
                 multiline
                 max
-                onChangeText={(text) => setdesc(text)}
+                onChangeText={(text) => setDescription(text)}
                 selectionColor={"#0f172a"}
                 style={{ textAlignVertical: "top", maxHeight: 100 }}
               />
@@ -195,18 +203,18 @@ const CreateTaskScreen = ({ navigation }) => {
                   <ToggleSwitch open={isCompleted} swicth={toggleSwitch} />
                 </View>
               </View>
-              <Button
-                color={"#0f172a"}
-                radius={8}
-                paddingVertical={12}
-                className="items-center justify-center"
-                onPress={createTask}
-              >
-                <Text p weight={"600"} className="text-white">
-                  Create
-                </Text>
-              </Button>
             </ScrollView>
+            <Button
+              color={"#0f172a"}
+              radius={8}
+              paddingVertical={12}
+              className="items-center justify-center mb-4"
+              onPress={submit}
+            >
+              <Text p weight={"600"} className="text-white">
+                Submit
+              </Text>
+            </Button>
           </View>
         </View>
       </SafeAreaView>
@@ -265,7 +273,7 @@ const CreateTaskScreen = ({ navigation }) => {
       {pickerIsOpen && (
         <DateTimePicker
           testID="dateTimePicker"
-          value={new Date()}
+          value={new Date(due_date)}
           mode="date" // You can also use "time" or "datetime"
           is24Hour={true}
           display="spinner"
@@ -275,4 +283,4 @@ const CreateTaskScreen = ({ navigation }) => {
     </PaperProvider>
   );
 };
-export default CreateTaskScreen;
+export default TaskDetailsScreen;

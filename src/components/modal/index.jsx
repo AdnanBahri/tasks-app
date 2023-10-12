@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Modal, Portal, Text, Button, PaperProvider } from "react-native-paper";
+import { Modal, Portal } from "react-native-paper";
 
 const DialogModal = ({ visible, hide, children }) => {
   const containerStyle = {

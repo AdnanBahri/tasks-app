@@ -7,6 +7,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { Text } from "../components/ui";
 import { View } from "react-native";
 import CategoriesScreen from "../screens/CategoriesScreen";
+import TaskDetailsScreen from "../screens/TaskDetailsScreen";
 
 const MainStack = createStackNavigator();
 const MainTabs = createBottomTabNavigator();
@@ -20,6 +21,7 @@ const HomeStack = () => (
   >
     <MainStack.Screen name="HomeScreen" component={HomeScreen} />
     <MainStack.Screen name="TasksScreen" component={TasksScreen} />
+    <MainStack.Screen name="TaskDetailsScreen" component={TaskDetailsScreen} />
   </MainStack.Navigator>
 );
 
@@ -32,6 +34,7 @@ const CategoriesStack = () => (
   >
     <MainStack.Screen name="CategoriesScreen" component={CategoriesScreen} />
     <MainStack.Screen name="TaskScreen" component={TasksScreen} />
+    <MainStack.Screen name="TaskDetailsScreen" component={TaskDetailsScreen} />
   </MainStack.Navigator>
 );
 
